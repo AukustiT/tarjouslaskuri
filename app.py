@@ -1,74 +1,93 @@
 import streamlit as st
 
-# Asetukset: piilotetaan valikot ja tyhjät ylämarginaalit, jotta mahtuu kännykän ruudulle
+# Asetukset: mobiilioptimoitu asettelu
 st.set_page_config(page_title="Hintalaskuri", layout="centered")
 
 st.markdown("""
 <style>
-    /* Minimaaliset marginaalit mobiilinäkymää varten */
+    /* 1. PIILOTETAAN + JA - NAPIT KOKONAAN */
+    [data-testid="stNumberInputStepUp"], [data-testid="stNumberInputStepDown"] {
+        display: none !important;
+    }
+    
+    /* 2. TEHDÄÄN SYÖTTÖKENTÄSTÄ MASSIVINEN */
+    input[type="number"] {
+        font-size: 2.5rem !important;  /* Jättimäinen teksti */
+        font-weight: 800 !important;
+        padding: 20px !important;      /* Paksu kenttä, helppo osua sormella */
+        text-align: center;
+        border-radius: 12px !important;
+    }
+
+    /* 3. MOBIILIN REUNUKSET JA YLIMÄÄRÄINEN TILA POIS */
     .block-container {
-        padding-top: 1rem !important;
-        padding-bottom: 0.5rem !important;
+        padding-top: 1.5rem !important;
+        padding-bottom: 1rem !important;
         padding-left: 1rem !important;
         padding-right: 1rem !important;
-        max-width: 480px;
+        max-width: 500px;
     }
-    #MainMenu, header, footer {visibility: hidden;}
+    header, footer {visibility: hidden;}
     
+    /* 4. TULOSKORTIT ISOMMAKSI JA KESKITETYKSI */
     .card {
-        padding: 12px;
-        border-radius: 8px;
-        margin-bottom: 10px;
+        padding: 20px 15px;
+        border-radius: 12px;
+        margin-bottom: 15px;
+        text-align: center;
+        box-shadow: 0 4px 6px rgba(0,0,0,0.05);
     }
     .camp-card {
         background-color: #fff0f0;
-        border: 1px solid #ffcccc;
+        border: 2px solid #ffcccc;
     }
     .tax-card {
         background-color: #f0f8ff;
-        border: 1px solid #cce5ff;
+        border: 2px solid #cce5ff;
     }
     .title-text {
-        font-size: 0.85rem;
+        font-size: 1rem;
         color: #555;
-        margin-bottom: 2px;
+        margin-bottom: 5px;
         text-transform: uppercase;
+        font-weight: 700;
         letter-spacing: 0.5px;
     }
     .red-price {
         color: #d9383a;
-        font-size: 1.8rem;
-        font-weight: 700;
+        font-size: 2.2rem;
+        font-weight: 900;
         line-height: 1.1;
     }
     .green-price {
         color: #1a7f37;
-        font-size: 1.8rem;
-        font-weight: 700;
+        font-size: 2.2rem;
+        font-weight: 900;
         line-height: 1.1;
     }
     .tax-subtext {
-        font-size: 0.75rem;
+        font-size: 0.85rem;
         color: #666;
-        margin-top: 3px;
+        margin-top: 8px;
     }
 </style>
 """, unsafe_allow_html=True)
 
-# 1. Normaali hinta -syöte
+# Iso oma otsikko syöttökentälle
+st.markdown("<h3 style='text-align: center; color: #333; margin-bottom: -15px;'>Syötä normaali hinta (€)</h3>", unsafe_allow_html=True)
+
+# Syöttökenttä (step=None varmistaa, ettei nappeja ilmesty taustalla)
 normaali_hinta = st.number_input(
-    "Normaali hinta (€)", 
+    "Otsikko piilossa", 
     min_value=0.0, 
     value=1000.0, 
-    step=50.0,
-    format="%.2f"
+    step=None, 
+    label_visibility="collapsed" 
 )
 
-# 2. Laskentalogiikka
-# Kampanjahinta: -15%
+# Laskentalogiikka
 kampanjahinta = normaali_hinta * 0.85
 
-# Kotitalousvähennys: 35 % osuudesta, joka ylittää 150 € omavastuun
 if kampanjahinta > 150:
     vahennys = (kampanjahinta - 150) * 0.35
 else:
@@ -76,7 +95,7 @@ else:
 
 lopullinen_hinta = kampanjahinta - vahennys
 
-# 3. Kampanjahinta (punaisella)
+# Kampanjahinta (punaisella)
 st.markdown(f"""
 <div class="card camp-card">
     <div class="title-text">Kampanjahinta (-15%)</div>
@@ -84,7 +103,7 @@ st.markdown(f"""
 </div>
 """, unsafe_allow_html=True)
 
-# 4. Hinta kotitalousvähennyksellä
+# Hinta kotitalousvähennyksellä (vihreällä)
 st.markdown(f"""
 <div class="card tax-card">
     <div class="title-text">Hinta kotitalousvähennyksellä</div>
