@@ -153,6 +153,3 @@ if normaali is not None and normaali > 0:
         </div>
     </div>
     """, unsafe_allow_html=True)
-else:
-    # Näytetään tyylikäs ohje, jos kenttä on tyhjä
-    st.info("👆 Syötä hinta yllä olevaan kenttään nähdäksesi laskelman.")
