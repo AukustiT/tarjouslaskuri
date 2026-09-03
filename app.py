@@ -1,172 +1,105 @@
 import streamlit as st
 
-st.set_page_config(
-    page_title="Hintalaskuri",
-    page_icon="💳",
-    layout="centered",
-    initial_sidebar_state="collapsed"
-)
+# Asetukset: Mobiiliystävällinen ja siisti asettelu
+st.set_page_config(page_title="Hintalaskuri", layout="centered")
 
+# Turvallinen CSS, joka EI riko Streamlitin omaa dark/light -modea tai rullausta
 st.markdown("""
 <style>
-    /* 1. Pakotetaan koko sivu mahtumaan yhteen ruutuun ilman skrollia */
-    html, body, [data-testid="stAppViewContainer"] {
-        height: 100vh;
-        max-height: 100dvh;
-        overflow: hidden !important;
-        background-color: #0f172a !important; /* Elegantti tumma slate-tausta */
-        color: #f8fafc;
-        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-    }
-
-    /* Piilotetaan Streamlitin yläpalkki, footer ja valikkonapit */
-    header, footer, #MainMenu, [data-testid="stToolbar"] {
-        display: none !important;
-    }
-
-    /* Nollataan Streamlitin omat massiiviset paddingit */
+    /* Piilotetaan turhat yläpalkit ja valikot */
+    #MainMenu, header, footer {visibility: hidden;}
+    
+    /* Mobiilille sopivat fiksut marginaalit */
     .block-container {
-        padding: 1.25rem 1rem !important;
-        max-width: 420px !important;
-        margin: auto;
-        display: flex;
-        flex-direction: column;
-        justify-content: space-between;
-        height: 100dvh;
-        box-sizing: border-box;
+        padding-top: 2rem !important;
+        padding-bottom: 2rem !important;
+        max-width: 480px;
     }
 
-    /* 2. Poistetaan Streamlitin omat + / - napit kokonaan */
-    [data-testid="stNumberInputStepUp"], 
-    [data-testid="stNumberInputStepDown"],
-    input[type=number]::-webkit-inner-spin-button, 
-    input[type=number]::-webkit-outer-spin-button {
-        display: none !important;
-        -webkit-appearance: none !important;
-        margin: 0 !important;
-    }
-
-    /* 3. Iso, puhdas syöttökenttä */
-    [data-testid="stTextInputRootElement"], [data-testid="stNumberInputRootElement"] {
-        background: transparent !important;
-        border: none !important;
+    /* 1. PIILOTETAAN + JA - NAPIT TURVALLISESTI */
+    input[type="number"]::-webkit-inner-spin-button, 
+    input[type="number"]::-webkit-outer-spin-button {
+        -webkit-appearance: none;
+        margin: 0;
     }
     
-    div[data-baseweb="input"] {
-        background-color: #1e293b !important;
-        border: 1px solid #334155 !important;
-        border-radius: 18px !important;
-        padding: 6px 12px !important;
-        transition: all 0.2s ease;
-    }
-
-    div[data-baseweb="input"]:focus-within {
-        border-color: #38bdf8 !important;
-        box-shadow: 0 0 0 2px rgba(56, 189, 248, 0.2) !important;
-    }
-
+    /* 2. TEHDÄÄN SYÖTTÖKENTÄSTÄ ISO JA CLEAN */
     input[type="number"] {
-        font-size: 2.2rem !important;
-        font-weight: 800 !important;
-        color: #f8fafc !important;
+        -moz-appearance: textfield;
+        font-size: 2.2rem !important; /* Erittäin iso teksti */
         text-align: center !important;
-        padding: 10px 0 !important;
-        letter-spacing: -1px;
+        font-weight: 800 !important;
+        height: 75px !important;      /* Paksu kenttä, mihin on helppo osua */
+        border-radius: 16px !important;
     }
 
-    /* 4. Tulostuskortit */
-    .card-wrap {
-        display: flex;
-        flex-direction: column;
-        gap: 12px;
-        margin-top: 14px;
-        margin-bottom: 10px;
-    }
-
+    /* 3. FINTECH-KORTIT (Toimivat aina täydellisesti teemasta riippumatta) */
     .promo-card {
-        background: linear-gradient(145deg, #2a1215 0%, #1c0a0c 100%);
-        border: 1px solid rgba(244, 63, 94, 0.3);
-        border-radius: 20px;
-        padding: 18px 20px;
-        position: relative;
+        background-color: #1a0f14; /* Tummansävyinen tausta */
+        border: 1px solid #e11d48;
+        border-radius: 16px;
+        padding: 22px;
+        margin-bottom: 16px;
+        color: #ffffff; /* Pakotettu valkoinen teksti kortin sisälle */
+        box-shadow: 0 4px 15px rgba(225, 29, 72, 0.08);
     }
 
     .deduct-card {
-        background: linear-gradient(145deg, #0d2818 0%, #06180e 100%);
-        border: 1px solid rgba(34, 197, 94, 0.35);
-        border-radius: 20px;
-        padding: 20px;
-        box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.5);
+        background-color: #06180e; /* Tummanvihreä tausta */
+        border: 1px solid #16a34a;
+        border-radius: 16px;
+        padding: 22px;
+        color: #ffffff;
+        box-shadow: 0 4px 15px rgba(22, 163, 74, 0.08);
     }
 
-    .card-label {
-        font-size: 0.78rem;
-        font-weight: 700;
+    .card-title {
+        font-size: 0.85rem;
+        font-weight: 800;
         text-transform: uppercase;
-        letter-spacing: 0.08em;
-        margin-bottom: 4px;
+        letter-spacing: 1px;
+        margin-bottom: 8px;
     }
 
-    .promo-label { color: #fb7185; }
-    .deduct-label { color: #4ade80; }
+    .promo-title { color: #fb7185; }
+    .deduct-title { color: #4ade80; }
 
-    .price-promo {
-        font-size: 2.2rem;
+    .price {
+        font-size: 2.8rem;
         font-weight: 900;
-        color: #f43f5e;
-        line-height: 1.05;
-        letter-spacing: -0.5px;
-    }
-
-    .price-deduct {
-        font-size: 2.6rem;
-        font-weight: 900;
-        color: #22c55e;
-        line-height: 1.05;
+        margin: 5px 0;
+        line-height: 1.1;
         letter-spacing: -1px;
     }
+    
+    .promo-price { color: #f43f5e; }
+    .deduct-price { color: #22c55e; }
 
-    .badge {
-        display: inline-block;
-        padding: 3px 8px;
-        border-radius: 999px;
-        font-size: 0.7rem;
-        font-weight: 800;
-        float: right;
-    }
-
-    .badge-promo { background: rgba(244, 63, 94, 0.2); color: #f43f5e; }
-    .badge-deduct { background: rgba(34, 197, 94, 0.2); color: #4ade80; }
-
-    .info-subtext {
-        font-size: 0.8rem;
+    .sub-info {
+        font-size: 0.85rem;
         color: #94a3b8;
-        margin-top: 8px;
         display: flex;
         justify-content: space-between;
-        border-top: 1px solid rgba(255, 255, 255, 0.08);
-        padding-top: 8px;
+        margin-top: 14px;
+        padding-top: 14px;
+        border-top: 1px solid rgba(255, 255, 255, 0.1);
     }
 </style>
 """, unsafe_allow_html=True)
 
-# Yläotsikko
-st.markdown("""
-<div style="text-align: center; margin-top: 4px; margin-bottom: 8px;">
-    <span style="font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.1em; color: #64748b; font-weight: 700;">Syötä hinta</span>
-</div>
-""", unsafe_allow_html=True)
+# Pieni ohjeteksti syöttökentän päälle
+st.markdown("<div style='text-align: center; color: #64748b; font-size: 0.85rem; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 5px;'>Syötä normaali hinta (€)</div>", unsafe_allow_html=True)
 
-# Yksinkertainen, suuri syöttökenttä
+# Itse syöttökenttä (Nyt Streamlit hoitaa dark/light moden värit oikein automaattisesti)
 normaali = st.number_input(
     label="Hinta",
     min_value=0.0,
-    value=1200.0,
-    step=None,
+    value=1000.0,
+    step=1.0,  # step=None saattaa rikkoa syöttökentän joillain selaimilla, 1.0 on turvallinen
     label_visibility="collapsed"
 )
 
-# Laskentalogiikka
+# Laskennat
 kampanjahinta = normaali * 0.85
 
 if kampanjahinta > 150:
@@ -176,33 +109,23 @@ else:
 
 maksettava = kampanjahinta - vahennys
 
-# Kortit
+# Tulokset hienoissa Fintech-korteissa
 st.markdown(f"""
-<div class="card-wrap">
-    <!-- Kampanjakortti -->
-    <div class="promo-card">
-        <div>
-            <span class="card-label promo-label">Kampanjahinta</span>
-            <span class="badge badge-promo">-15%</span>
-        </div>
-        <div class="price-promo">{kampanjahinta:,.2f}&nbsp;€</div>
-    </div>
+<div class="promo-card">
+    <div class="card-title promo-title">Kampanjahinta (-15%)</div>
+    <div class="price promo-price">{kampanjahinta:,.2f} €</div>
+</div>
 
-    <!-- Kotitalousvähennyskortti -->
-    <div class="deduct-card">
-        <div>
-            <span class="card-label deduct-label">Lopullinen oma osuus</span>
-            <span class="badge badge-deduct">Kotitalousvähennys</span>
-        </div>
-        <div class="price-deduct">{maksettava:,.2f}&nbsp;€</div>
-        <div class="info-subtext">
-            <span>Vähennyksen osuus</span>
-            <strong style="color: #cbd5e1;">-{vahennys:,.2f} €</strong>
-        </div>
-        <div class="info-subtext" style="border: none; padding-top: 2px; margin-top: 0;">
-            <span>Omavastuu huomioitu</span>
-            <span style="color: #64748b;">150,00 €</span>
-        </div>
+<div class="deduct-card">
+    <div class="card-title deduct-title">Lopullinen hinta</div>
+    <div class="price deduct-price">{maksettava:,.2f} €</div>
+    <div class="sub-info">
+        <span>Kotitalousvähennys</span>
+        <strong style="color: #f8fafc;">-{vahennys:,.2f} €</strong>
+    </div>
+    <div class="sub-info" style="border: none; padding-top: 6px; margin-top: 0;">
+        <span>Omavastuu huomioitu</span>
+        <span style="color: #cbd5e1;">150,00 €</span>
     </div>
 </div>
 """, unsafe_allow_html=True)
